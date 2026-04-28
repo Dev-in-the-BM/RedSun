@@ -1,7 +1,7 @@
 name: Build RedSun Multi-Arch
 on:
   push:
-  workflow_dispatch: # This allows you to trigger the build manually from the "Actions" tab
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # Updated from v3 to v4
+        uses: actions/checkout@v4
 
       - name: Setup MSVC (${{ matrix.arch }})
         uses: ilammy/msvc-dev-cmd@v1
@@ -20,11 +20,11 @@ jobs:
           arch: ${{ matrix.arch }}
 
       - name: Compile RedSun
-        # This compiles the RedSun PoC using the official Microsoft compiler
-        run: cl.exe /EHsc /std:c++17 RedSun.cpp /out:RedSun_${{ matrix.arch }}.exe
+        # Added /D UNICODE and /D _UNICODE to fix the wchar_t to LPCSTR conversion errors
+        run: cl.exe /EHsc /std:c++17 /D UNICODE /D _UNICODE RedSun.cpp /out:RedSun_${{ matrix.arch }}.exe
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4 # Updated from v3 to v4 to fix the error
+        uses: actions/upload-artifact@v4
         with:
           name: RedSun-Binaries-${{ matrix.arch }}
           path: RedSun_${{ matrix.arch }}.exe
