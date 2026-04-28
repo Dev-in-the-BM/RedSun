@@ -1,0 +1,30 @@
+name: Build RedSun Multi-Arch
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        # This tells GitHub to run the job twice, once for each architecture
+        arch: [x86, x64]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup MSVC (${{ matrix.arch }})
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.arch }}
+
+      - name: Compile RedSun
+        # cl.exe automatically picks up the #pragma comment(lib, ...) 
+        # instructions inside RedSun.cpp for linking.
+        run: cl.exe /EHsc /std:c++17 RedSun.cpp /out:RedSun_${{ matrix.arch }}.exe
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: RedSun-Binaries-${{ matrix.arch }}
+          path: RedSun_${{ matrix.arch }}.exe
