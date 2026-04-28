@@ -20,8 +20,9 @@ jobs:
           arch: ${{ matrix.arch }}
 
       - name: Compile RedSun
-        # Added /D UNICODE and /D _UNICODE to fix the wchar_t to LPCSTR conversion errors
-        run: cl.exe /EHsc /std:c++17 /D UNICODE /D _UNICODE RedSun.cpp /out:RedSun_${{ matrix.arch }}.exe
+        # Added Advapi32.lib, User32.lib, and Ole32.lib to resolve LNK2019 errors.
+        # Changed /out: to /Fe: for correct executable naming.
+        run: cl.exe /EHsc /std:c++17 /D UNICODE /D _UNICODE RedSun.cpp Advapi32.lib User32.lib Ole32.lib /Fe:RedSun_${{ matrix.arch }}.exe
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
