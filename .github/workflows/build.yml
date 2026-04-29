@@ -1,7 +1,10 @@
-name: Build RedSun Multi-Arch
+86name: Build RedSun Multi-Arch
 on:
   push:
   workflow_dispatch:
+
+permissions:
+  contents: write # Required to allow the action to push files back to your repo
 
 jobs:
   build:
@@ -29,3 +32,29 @@ jobs:
         with:
           name: RedSun-Binaries-${{ matrix.arch }}
           path: RedSun_${{ matrix.arch }}.exe
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: binaries-temp
+          merge-multiple: true
+
+      - name: Move to binaries folder
+        run: |
+          mkdir -p binaries
+          mv binaries-temp/*.exe binaries/
+          rm -rf binaries-temp
+
+      - name: Commit and Push
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Build: update binaries [skip ci]"
+          file_pattern: 'binaries/*.exe'
+          branch: main
