@@ -1,4 +1,4 @@
-86name: Build RedSun Multi-Arch
+name: Build RedSun Multi-Arch
 on:
   push:
   workflow_dispatch:
